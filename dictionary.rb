@@ -21,14 +21,35 @@ class Dictionary
     end
   end
 
-  def study(input)
+  def study(input, parts)
+    study_random(input)
+    study_pattern(input, parts)
+  end
+
+  def study_random(input)
     return if @random.include?(input)
     @random.push(input)
+  end
+
+  def study_pattern(input, parts)
+    parts.each do |word, part|
+      next unless Morph::keyword?(part)
+      duped = @pattern.find { |ptn_item| ptn_item.pattern == word }
+      if duped
+        duped.add_phrase(input)
+      else
+        @pattern.push(PatternItem.new(word, input))
+      end
+    end
   end
 
   def save
     open("dictionaries/random.txt", "w") do |f|
       f.puts(@random)
+    end
+
+    open("dictionaries/pattern.txt", "w") do |f|
+      @pattern.each { |ptn_item| f.puts(ptn_item.make_line) }
     end
   end
 end
@@ -46,6 +67,17 @@ class PatternItem
       SEPARATOR =~ phrase
       @phrases.push({ need: $2.to_i, phrase: $3 })
     end
+  end
+
+  def add_phrase(phrase)
+    return if @phrases.find{ |p| p[:phrase] == phrase}
+    @phrases.push({ need: 0, phrase: phrase })
+  end
+
+  def make_line
+    pattern = @modify.to_s + "##" + @pattern
+    phrases = @phrases.map { |p| p[:need].to_s + "##" + p[:phrase] }
+    return pattern + "\t" + phrases.join("|")
   end
 
   def match(str)

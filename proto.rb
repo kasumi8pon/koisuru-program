@@ -6,6 +6,7 @@ def prompt(unmo)
   "#{unmo.name} : #{unmo.responder_name}> "
 end
 
+Morph::init_analyzer
 puts "Unmo System prototype : proto"
 proto = Unmo.new("proto")
 while true

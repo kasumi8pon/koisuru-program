@@ -1,4 +1,5 @@
 require "./responder.rb"
+require "./morph.rb"
 
 class Unmo
   def initialize(name)
@@ -13,6 +14,7 @@ class Unmo
 
   def dialogue(input)
     @emotion.update(input)
+    parts = Morph::analyze(input)
 
     case rand(100)
     when 0..59
@@ -24,7 +26,7 @@ class Unmo
     end
     response = @responder.response(input, @emotion.mood)
 
-    @dictionary.study(input)
+    @dictionary.study(input, parts)
     return response
   end
 
