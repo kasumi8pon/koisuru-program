@@ -19,7 +19,7 @@ end
 
 class RandomResponder < Responder
   def response(input, parts, mood)
-    select_random(@dictionary.random)
+    @dictionary.random.sample
   end
 end
 
@@ -32,7 +32,7 @@ class PatternResponder < Responder
         return resp.gsub(/%match%/, m.to_s)
       end
     end
-    select_random(@dictionary.random)
+    @dictionary.random.sample
   end
 end
 
@@ -42,9 +42,9 @@ class TemplateResponder < Responder
     parts.each { |word, part| keyword.push(word) if Morph.keyword?(part) }
     count = keyword.size
     if count > 0 and templates = @dictionary.template[count]
-      template = select_random(templates)
+      template = templates.sample
       return template.gsub(/%noun%/) { keyword.shift }
     end
-    return select_random(@dictionary.random)
+    return @dictionary.random.sample
   end
 end

@@ -85,7 +85,3 @@ class Emotion
     end
   end
 end
-
-def select_random(ary)
-  return ary[rand(ary.size)]
-end

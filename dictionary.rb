@@ -126,7 +126,7 @@ class PatternItem
     @phrases.each do |p|
       choices.push(p[:phrase]) if suitable?(p[:need], mood)
     end
-    (choices.empty?)? nil : select_random(choices)
+    (choices.empty?)? nil : choices.sample
   end
 
   def suitable?(need, mood)
