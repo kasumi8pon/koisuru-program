@@ -9,6 +9,7 @@ class Unmo
     @responder_what = WhatResponder.new("What", @dictionary)
     @responder_random = RandomResponder.new("Random", @dictionary)
     @responder_pattern = PatternResponder.new("Pattern", @dictionary)
+    @responder_template= TemplateResponder.new("Template", @dictionary)
     @responder = @responder_random
   end
 
@@ -17,14 +18,16 @@ class Unmo
     parts = Morph::analyze(input)
 
     case rand(100)
-    when 0..59
+    when 0..39
       @responder = @responder_pattern
+    when 40..59
+      @responder = @responder_template
     when 60..89
       @responder = @responder_random
     else
       @responder = @responder_what
     end
-    response = @responder.response(input, @emotion.mood)
+    response = @responder.response(input, parts, @emotion.mood)
 
     @dictionary.study(input, parts)
     return response
