@@ -1,34 +1,71 @@
+require "./markov.rb"
+
 class Dictionary
-  attr_reader :random, :pattern, :template
+  attr_reader :random, :pattern, :template, :markov
 
   def initialize
+    load_random
+    load_pattern
+    load_template
+    load_markov
+  end
+
+  def load_random
     @random = []
-    open("dictionaries/random.txt") do |f|
-      f.each do |line|
-        line.chomp!
-        next if line.empty?
-        @random.push(line)
+    begin
+      open("dictionaries/random.txt") do |f|
+        f.each do |line|
+          line.chomp!
+          next if line.empty?
+          @random.push(line)
+        end
       end
+    rescue => e
+      puts e.message
+      @random.push("こんにちは")
     end
+  end
 
+  def load_pattern
     @pattern = []
-    open("dictionaries/pattern.txt") do |f|
-      f.each do |line|
-        pattern, phrase = line.chomp!.split("\t")
-        next if pattern.nil? or phrase.nil?
-        @pattern.push(PatternItem.new(pattern, phrase))
+    begin
+      open("dictionaries/pattern.txt") do |f|
+        f.each do |line|
+          pattern, phrase = line.chomp!.split("\t")
+          next if pattern.nil? or phrase.nil?
+          @pattern.push(PatternItem.new(pattern, phrase))
+        end
       end
+    rescue => e
+      puts e.message
     end
+  end
 
+  def load_template
     @template = []
-    open("dictionaries/template.txt") do |f|
-      f.each do |line|
-        count, template = line.chomp!.split(/\t/)
-        next if count.nil? or pattern.nil?
-        count = count.to_i
-        @template[count] = [] unless @template[count]
-        @template[count].push(template)
+    begin
+      open("dictionaries/template.txt") do |f|
+        f.each do |line|
+          count, template = line.chomp!.split(/\t/)
+          next if count.nil? or pattern.nil?
+          count = count.to_i
+          @template[count] = [] unless @template[count]
+          @template[count].push(template)
+        end
       end
+    rescue => e
+      puts e.message
+    end
+  end
+
+  def load_markov
+    @markov = Markov.new
+    begin
+      open("dictionaries/markov.dat", "rb") do |f|
+        @markov.load(f)
+      end
+    rescue => e
+      puts e.message
     end
   end
 
@@ -36,6 +73,7 @@ class Dictionary
     study_random(input)
     study_pattern(input, parts)
     study_template(parts)
+    study_markov(parts)
   end
 
   def study_random(input)
@@ -73,6 +111,10 @@ class Dictionary
     end
   end
 
+  def study_markov(parts)
+    @markov.add_sentence(parts)
+  end
+
   def save
     open("dictionaries/random.txt", "w") do |f|
       f.puts(@random)
@@ -87,6 +129,10 @@ class Dictionary
         next if templates.nil?
         templates.each { |template| f.puts("#{i.to_s}\t#{template}") }
       end
+    end
+
+    open("dictionaries/markov.dat", "wb") do |f|
+      @markov.save(f)
     end
   end
 end

@@ -10,6 +10,7 @@ class Unmo
     @responder_random = RandomResponder.new("Random", @dictionary)
     @responder_pattern = PatternResponder.new("Pattern", @dictionary)
     @responder_template= TemplateResponder.new("Template", @dictionary)
+    @responder_markov = MarkovResponder.new("Markov", @dictionary)
     @responder = @responder_random
   end
 
@@ -18,12 +19,14 @@ class Unmo
     parts = Morph::analyze(input)
 
     case rand(100)
-    when 0..39
+    when 0..29
       @responder = @responder_pattern
-    when 40..59
+    when 30..49
       @responder = @responder_template
-    when 60..89
+    when 50..69
       @responder = @responder_random
+    when 70..89
+      @responder = @responder_markov
     else
       @responder = @responder_what
     end
